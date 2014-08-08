@@ -1,13 +1,13 @@
 package monocle.syntax
 
-import monocle.{SimpleLens, Getter, Optional, Lens}
-import scalaz.{Functor, State}
+import monocle.{Getter, Lens, Optional}
+
+import scalaz.Functor
 
 object lens extends LensSyntax
 
 private[syntax] trait LensSyntax {
   implicit def toLensOps[S, T, A, B](lens:  Lens[S, T, A, B]): LensOps[S, T, A, B] = new LensOps(lens)
-  implicit def toSimpleLensOps[S, A](lens:  SimpleLens[S, A]): SimpleLensOps[S, A] = new SimpleLensOps(lens)
 
   implicit def toApplyLensOps[S](value: S): ApplyLensOps[S] = new ApplyLensOps(value)
 }
@@ -16,34 +16,6 @@ private[syntax] final class LensOps[S, T, A, B](self: Lens[S, T, A, B]) {
   def |->[C, D](other: Lens[A, B, C, D]): Lens[S, T, C, D] = self composeLens other
 }
 
-private[syntax] final class SimpleLensOps[S, A](self: SimpleLens[S, A]) {
-  
-  def updateState(f: A => A): State[S, Unit] =
-    self.toState.leftMap(s =>
-      self.modify(s, f)
-    ).map(_ => ())
-
-  def :=(value: A): State[S, Unit] = updateState(_ => value)
-  
-  def +=(value: A)(implicit ev: Numeric[A]): State[S, Unit] =
-    updateState(a => ev.plus(a, value))
-
-  def -=(value: A)(implicit ev: Numeric[A]): State[S, Unit] =
-    updateState(a => ev.minus(a, value))
-
-  def *=(value: A)(implicit ev: Numeric[A]): State[S, Unit] =
-    updateState(a => ev.times(a, value))
-
-  def zoom[B](subState: State[A, B]): State[S, B] =
-    for {
-      _ <- self.toState
-      b <- State[S, B] { s =>
-        val (a, b) = subState.apply(self.get(s))
-        (self.set(s, a), b)
-      }
-    } yield b
-
-}
 
 private[syntax] trait ApplyLens[S, T, A, B] extends ApplyOptional[S, T, A, B] with ApplyGetter[S, A] { self =>
   def _lens: Lens[S, T, A, B]

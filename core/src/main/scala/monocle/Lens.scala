@@ -1,6 +1,6 @@
 package monocle
 
-import scalaz.{Const, Applicative, Functor, Monoid, State}
+import scalaz.{Applicative, Const, Functor, Monoid}
 
 /**
  * A Lens defines a single focus between a type S and A such as if you change A to B
@@ -23,8 +23,6 @@ trait Lens[S, T, A, B] extends Optional[S, T, A, B] with Getter[S, A] { self =>
 
   @deprecated("Use composeLens", since = "0.5")
   def compose[C, D](other: Lens[A, B, C, D]): Lens[S, T, C, D] = composeLens(other)
-
-  def toState: State[S, A] = State(s => (s, get(s)))
 
 }
 
