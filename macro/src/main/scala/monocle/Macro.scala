@@ -4,14 +4,27 @@ import scala.language.experimental.macros
 import monocle.internal.CompatibilityMacro210._
 
 object Macro {
-
-  def mkLens[A, B](fieldName: String): Lens[A, A, B, B] = macro MacroImpl.mkLens_impl[A, B]
-
+  @deprecated("use Lenser", since = "0.5.1")
+  def mkLens[A, B](fieldName: String): SimpleLens[A, B] = macro MacroImpl.mkLens_impl[A, B]
 }
 
 private[monocle] object MacroImpl {
 
   import scala.reflect.macros._
+
+  def lenser_impl[A: c.WeakTypeTag, B: c.WeakTypeTag](c: Context)(field: c.Expr[A => B]): c.Expr[SimpleLens[A, B]] = {
+    import c.universe._
+    val fieldName = field match {
+      case Expr(
+      Function(
+      List(ValDef(_, termDefName, _, EmptyTree)),
+      Select(Ident(termUseName), fieldNameName))) if termDefName.decodedName.toString == termUseName.decodedName.toString =>
+        fieldNameName.decodedName.toString
+      case _ => c.abort(c.enclosingPosition, s"Illegal field reference ${show(field.tree)}; please use _.field instead")
+    }
+
+    mkLens_impl[A, B](c)(c.Expr[String](q"$fieldName"))
+  }
 
   def mkLens_impl[A: c.WeakTypeTag, B: c.WeakTypeTag](c: Context)(fieldName: c.Expr[String]): c.Expr[Lens[A, A, B, B]] = {
     import c.universe._
