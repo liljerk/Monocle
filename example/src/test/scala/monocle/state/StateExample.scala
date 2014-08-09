@@ -1,9 +1,10 @@
-package monocle
+package monocle.state
 
+import monocle.state.lens._
+import monocle.{Macro, SimpleLens}
 import org.specs2.scalaz.Spec
 
 import scalaz.State
-import monocle.state.lens._
 
 
 class StateExample extends Spec {
