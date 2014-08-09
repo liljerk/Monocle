@@ -3,10 +3,10 @@ package monocle
 import org.specs2.scalaz.Spec
 
 import scalaz.State
-import monocle.syntax._
+import monocle.state.lens._
 
 
-object StateExample extends Spec {
+class StateExample extends Spec {
 
   "assign, increment, decrement and multiply" in {
     case class Point(x: Int, y: Int)
@@ -34,7 +34,7 @@ object StateExample extends Spec {
         case x :: xs => (xs, Some(x))
       }
 
-    val liftTake1Card: State[Game, Option[Int]] = _deck1.zoom(take1Card)
+    val liftTake1Card: State[Game, Option[Int]] = zoom(_deck1)(take1Card)
 
     val game = Game(List(1,2,3), List(4))
     liftTake1Card.run(game) shouldEqual (Game(List(2,3), List(4)), Some(1))
