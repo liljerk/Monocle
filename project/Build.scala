@@ -6,6 +6,9 @@ import com.typesafe.tools.mima.plugin.MimaKeys.previousArtifact
 
 import org.typelevel.sbt.TypelevelPlugin._
 
+import com.typesafe.sbt.osgi.OsgiKeys
+import com.typesafe.sbt.osgi.SbtOsgi._
+
 object BuildSettings {
   import MonoclePublishing._
   val buildScalaVersion = "2.11.2"
@@ -48,25 +51,27 @@ object MonocleBuild extends Build {
   lazy val core: Project = Project(
     "monocle-core",
     file("core"),
-    settings = buildSettings ++ Seq(
+    settings = buildSettings ++ osgiSettings ++ Seq(
       libraryDependencies ++= Seq(scalaz),
-      previousArtifact     := Some("com.github.julien-truffaut"  %  "monocle-core_2.11" % previousVersion)
+      previousArtifact     := Some("com.github.julien-truffaut"  %  "monocle-core_2.11" % previousVersion),
+      OsgiKeys.exportPackage := Seq("monocle.*;version=${Bundle-Version}")
     )
   )
 
   lazy val law: Project = Project(
     "monocle-law",
     file("law"),
-    settings = buildSettings ++ Seq(
+    settings = buildSettings ++ osgiSettings ++ Seq(
       libraryDependencies ++= Seq(scalaz, specs2Scalacheck),
-      previousArtifact := Some("com.github.julien-truffaut"  %  "monocle-law_2.11" % previousVersion)
+      previousArtifact := Some("com.github.julien-truffaut"  %  "monocle-law_2.11" % previousVersion),
+      OsgiKeys.exportPackage := Seq("monocle.law.*;version=${Bundle-Version}")
     )
   ) dependsOn(core)
 
   lazy val macros: Project = Project(
     "monocle-macro",
     file("macro"),
-    settings = buildSettings ++ Seq(
+    settings = buildSettings ++ osgiSettings ++ Seq(
       libraryDependencies ++= Seq(
         "org.scala-lang"  %  "scala-reflect"  % scalaVersion.value,
         "org.scala-lang"  %  "scala-compiler" % scalaVersion.value % "provided"
@@ -76,21 +81,23 @@ object MonocleBuild extends Build {
         case (2, scalaMajor) if scalaMajor < 11 =>
           // if scala 2.11+ is used, quasiquotes are merged into scala-reflect
           Seq("org.scalamacros" %% "quasiquotes" % macroVersion)
-      } getOrElse Nil
+      } getOrElse Nil,
+      OsgiKeys.exportPackage := Seq("monocle.macros.*;version=${Bundle-Version}")
     )
   ) dependsOn(core)
 
   lazy val generic: Project = Project(
     "monocle-generic",
     file("generic"),
-    settings = buildSettings ++ Seq(
+    settings = buildSettings ++ osgiSettings ++ Seq(
       libraryDependencies ++= Seq(scalaz),
       // TODO extract to reuse shapeless dependency definition in other modules
       libraryDependencies ++= Seq(CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, scalaMajor)) if scalaMajor >= 11 =>  "com.chuusai" %% "shapeless"        % "2.0.0"
         case Some((2, 10))                             =>  "com.chuusai" %  "shapeless_2.10.4" % "2.0.0"
       }),
-      previousArtifact := Some("com.github.julien-truffaut"  %  "monocle-generic_2.11" % previousVersion)
+      previousArtifact := Some("com.github.julien-truffaut"  %  "monocle-generic_2.11" % previousVersion),
+      OsgiKeys.exportPackage := Seq("monocle.generic.*;version=${Bundle-Version}")
     )
   ) dependsOn(core)
 
