@@ -15,7 +15,7 @@ object BuildSettings {
   val previousVersion   = "0.5.0"
 
   val buildSettings = typelevelDefaultSettings ++ Seq(
-    organization       := "com.github.julien-truffaut",
+    organization       := "com.github.julien-truffaut-osgi",
     scalaVersion       := buildScalaVersion,
     crossScalaVersions := Seq("2.10.4", "2.11.2"),
     scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature",
