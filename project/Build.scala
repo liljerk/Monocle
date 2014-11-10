@@ -64,7 +64,7 @@ object MonocleBuild extends Build {
     settings = buildSettings ++ osgiSettings ++ Seq(
       libraryDependencies ++= Seq(scalaz, specs2Scalacheck),
       previousArtifact := Some("com.github.julien-truffaut"  %  "monocle-law_2.11" % previousVersion),
-      OsgiKeys.exportPackage := Seq("monocle.law.*;version=${Bundle-Version}")
+      OsgiKeys.exportPackage := Seq("monocle.*;version=${Bundle-Version}")
     )
   ) dependsOn(core)
 
@@ -82,7 +82,7 @@ object MonocleBuild extends Build {
           // if scala 2.11+ is used, quasiquotes are merged into scala-reflect
           Seq("org.scalamacros" %% "quasiquotes" % macroVersion)
       } getOrElse Nil,
-      OsgiKeys.exportPackage := Seq("monocle.macros.*;version=${Bundle-Version}")
+      OsgiKeys.exportPackage := Seq("monocle.*;version=${Bundle-Version}")
     )
   ) dependsOn(core)
 
@@ -97,7 +97,7 @@ object MonocleBuild extends Build {
         case Some((2, 10))                             =>  "com.chuusai" %  "shapeless_2.10.4" % "2.0.0"
       }),
       previousArtifact := Some("com.github.julien-truffaut"  %  "monocle-generic_2.11" % previousVersion),
-      OsgiKeys.exportPackage := Seq("monocle.generic.*;version=${Bundle-Version}")
+      OsgiKeys.exportPackage := Seq("monocle.*;version=${Bundle-Version}")
     )
   ) dependsOn(core)
 
